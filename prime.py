@@ -65,30 +65,3 @@ class RSA:
             third_l.append(next_item)
 
         return third_l[-1] % m
-
-
-def mod_inverse(a, m):
-    # a^-1 mod m
-    # sample solution https://jamboard.google.com/d/1be9MkgcTksomW4O1QgERKEevEIaBwieY6UG4IiJOTaY/viewer?f=0
-    if a >= m:
-        # example input 23^-1 mod 13
-        # convert to 10^-1 mod 13
-        #  move mode to acceptable range
-        numbers_after_decimal = (a / m) - int(a / m)
-        a = int(numbers_after_decimal * m)
-
-    list_of_remainders = [m, a]
-    list_of_whole_numbers = [0]
-    third_l = [0, 1]
-
-    while list_of_remainders[-1] != 1:
-        whole_part = int(list_of_remainders[-2] / list_of_remainders[-1])
-        remainder = list_of_remainders[-2] % list_of_remainders[-1]
-        list_of_whole_numbers.append(whole_part)
-        list_of_remainders.append(remainder)
-
-    for num in range(0, len(list_of_whole_numbers) - 1):
-        next_item = third_l[num] - list_of_whole_numbers[num + 1] * third_l[num + 1]
-        third_l.append(next_item)
-
-    return third_l[-1] % m
