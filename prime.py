@@ -65,3 +65,7 @@ class RSA:
             third_l.append(next_item)
 
         return third_l[-1] % m
+
+
+# rsa = RSA()
+# rsa.priv_key
