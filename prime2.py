@@ -165,6 +165,13 @@ class RsaMessenger:
     def set_encrypted_message(self, encrypted_msg):
         self.cipher_msg = encrypted_msg
 
+    def get_unsigned_cipher(self):
+        # use that guys key here??
+        unsigned_cipher = [
+            self.de_ciphertext(cipher_chunk) for cipher_chunk in self.cipher_msg
+        ]
+        return unsigned_cipher
+
     def decrypt_msg(self, encrypted_msg=None):
         """
         message is given as cipher raised to private key
@@ -176,19 +183,40 @@ class RsaMessenger:
             raise ValueError("Attempt to decrypt an unencrypted message")
         else:
             # do some vidu magic
-            deciphered_chunk = [
-                self.de_ciphertext(cipher_chunk) for cipher_chunk in self.cipher_msg
+            # deciphered_chunk = [
+            #     self.de_ciphertext(cipher_chunk) for cipher_chunk in self.cipher_msg
+            # ]
+            unsigned_cipher = [
+                pow(unsigned_chunk, self.encryption_key, self.public_key)
+                for unsigned_chunk in self.get_unsigned_cipher()
             ]
-            print("decipher", deciphered_chunk)
-            return self.plaintext(deciphered_chunk)
+            print("decipher", unsigned_cipher)
+            return self.plaintext(unsigned_cipher)
 
-    def encrypt_msg(self):
+    def convert_msg_to_int(self):
         chunks = self.msg_to_chunks()
         hex_notation_of_msg = [self.to_hex(sub_chunk) for sub_chunk in chunks]
         int_notation = [
             self.hex_to_int(hex_notation) for hex_notation in hex_notation_of_msg
         ]
-        self.cipher_msg = [self.ciphertext(msg_chunk) for msg_chunk in int_notation]
+        return int_notation
+
+    def signed_message(self):
+        int_notation_list = self.convert_msg_to_int()
+        signed_msg = [
+            pow(msg_chunk, self.private_key, self.public_key)
+            for msg_chunk in int_notation_list
+        ]
+        return signed_msg
+
+    def encrypt_msg(self):
+        # chunks = self.msg_to_chunks()
+        # hex_notation_of_msg = [self.to_hex(sub_chunk) for sub_chunk in chunks]
+        # int_notation = [
+        #     self.hex_to_int(hex_notation) for hex_notation in hex_notation_of_msg
+        # ]
+        signed_msg_chunk = self.signed_message()
+        self.cipher_msg = [self.ciphertext(msg_chunk) for msg_chunk in signed_msg_chunk]
         return self.cipher_msg
 
 
@@ -198,123 +226,3 @@ snap_chat = RsaMessenger(
     public_key=3202427659,
     private_key=137017471,
 )
-
-# d= 137017471
-# n=160312903
-# e=1951
-
-snap_chat = RsaMessenger(
-    msg="Hello Arshdeep! My name is Perehrat",
-    encryption_key=1951,
-    public_key=160312903,
-    private_key=137017471,
-)
-
-msg = [
-    105857255,
-    107324725,
-    21409916,
-    27515532,
-    50581211,
-    134255434,
-    63940772,
-    58688061,
-    140883077,
-]
-snap_chat.set_encrypted_message(msg)
-snap_chat.encrypt_msg()
-snap_chat.decrypt_msg()
-
-
-snap_chat = RsaMessenger(
-    msg="Hello Arshdeep! My name is Perehrat",
-)
-# for decreption
-# snap_chat = RsaMessenger(
-#     encryption_key=<the_guys_key>,
-#     public_key=<the_guys_key,
-#     private_key=<the_guys_key,
-# )
-
-# snap_chat.set_encrypted_message(<pass_the_encypted_message>)
-# snap_chat.decrypt_msg()
-
-
-def calculateAmount(prices):
-    # Write your code here
-    previous_prices = []
-    discounts = []
-    for index, price in enumerate(prices):
-        print("current price", price)
-        if index == 0:
-            #  it's the first item
-            previous_prices.append(price)
-            discounts.append(price)
-        else:
-            print("lowest ranked price", min(previous_prices), previous_prices)
-
-            discount = max(price - min(previous_prices), 0)
-
-            # discount = price - dicounted_by
-            discounts.append(discount)
-            previous_prices.append(price)
-        print("dicounted price", discounts)
-
-    return sum(discounts)
-
-
-from bisect import bisect_left
-
-
-def binary_search(array, element_in_array):
-    i = bisect_left(array, element_in_array)
-    if i != len(array) and array[i] == element_in_array:
-        return i
-    else:
-        return -1
-
-
-from bisect import bisect_left
-
-
-def binary_search(array, element_in_array):
-    index = bisect_left(array, element_in_array)
-
-    if index != len(array) and array[index] == element_in_array:
-        return index
-    else:
-        return -1
-
-
-def maxMin(operations, x):
-    # Write your code here
-    max_element = 1
-    min_element = 1
-
-    new_list = []
-    products = []
-    for index, operation in enumerate(operations):
-        current_value = x[index]
-        if operation == "pop" and index == 0:
-            pass
-        elif operation == "push":
-            new_list.append(current_value)
-            sorted(new_list)
-        else:
-            index_of_element = binary_search(new_list, current_value)
-            new_list[index_of_element]
-            one_step_foward = index_of_element + 1
-            print(index_of_element, "element index")
-            #  take everything before and everything after that index no need to sort
-            new_list = new_list[:index_of_element] + new_list[one_step_foward:]
-            print("new list", new_list)
-
-        min_element = new_list[0]
-        max_element = new_list[-1]
-        products.append(max_element * min_element)
-    return products
-
-
-maxMin(["push", "push", "push", "pop"], [1, 2, 3, 1])
-p = [1, 2, 5, 6, 7]
-p = p[:1] + p[2:]
