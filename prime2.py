@@ -172,6 +172,26 @@ class RsaMessenger:
         ]
         return unsigned_cipher
 
+    def is_valid_signature(self, signed_message):
+        try:
+            unsigned_chunk = [
+                pow(signed_chunk, self.encryption_key, self.public_key)
+                for signed_chunk in signed_message
+            ]
+            return True
+        except Exception:
+            return False
+
+    def unsign_message(self, signed_message):
+        try:
+            unsigned_chunk = [
+                pow(signed_chunk, self.encryption_key, self.public_key)
+                for signed_chunk in signed_message
+            ]
+            return unsigned_chunk
+        except Exception:
+            return []
+
     def decrypt_msg(self, encrypted_msg=None):
         """
         message is given as cipher raised to private key
@@ -201,7 +221,7 @@ class RsaMessenger:
         ]
         return int_notation
 
-    def signed_message(self):
+    def sign_message(self):
         int_notation_list = self.convert_msg_to_int()
         signed_msg = [
             pow(msg_chunk, self.private_key, self.public_key)
@@ -215,7 +235,7 @@ class RsaMessenger:
         # int_notation = [
         #     self.hex_to_int(hex_notation) for hex_notation in hex_notation_of_msg
         # ]
-        signed_msg_chunk = self.signed_message()
+        signed_msg_chunk = self.sign_message()
         self.cipher_msg = [self.ciphertext(msg_chunk) for msg_chunk in signed_msg_chunk]
         return self.cipher_msg
 
@@ -226,3 +246,16 @@ snap_chat = RsaMessenger(
     public_key=3202427659,
     private_key=137017471,
 )
+
+
+snap_chat = RsaMessenger(
+    msg="Hello Arshdeep! My name is Perehrat",
+    encryption_key=1951,
+    public_key=160312903,
+    private_key=137017471,
+)
+
+signed_msg = snap_chat.sign_message()
+snap_chat.is_valid_signature(signed_msg)
+un = snap_chat.unsign_message(signed_msg)
+snap_chat.plaintext(un)
